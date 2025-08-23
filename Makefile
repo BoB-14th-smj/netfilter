@@ -1,5 +1,5 @@
 TARGET=netfilter
-CC=gcc
+CC=g++
 CFLAGS=-g -Wall
 
 all: $(TARGET)
@@ -9,7 +9,7 @@ all: $(TARGET)
 
 
 
-$(TARGET): nfqnl_test.c pkt.c
+$(TARGET): nfqnl_test.cpp pkt.cpp ip.cpp
 	$(CC) $(CFLAGS) $^ -o $@ -lpcap -lnetfilter_queue
 
 clean:

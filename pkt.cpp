@@ -1,6 +1,7 @@
 
 #include "pkt.h"
 #include <libnetfilter_queue/libnetfilter_queue.h>
+#include "ip.h"
 
 void dump(unsigned char* buf, int size) {
     int i;
