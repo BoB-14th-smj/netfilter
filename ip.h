@@ -32,6 +32,10 @@ struct Ip final {
         return prefix >= 0xE0 && prefix < 0xF0;
     }
 
+    void print_ip(void){
+        printf("%02x %02x %02x %02x\n", (ip_ >> 24) & 0xFF, (ip_ >> 16) & 0xFF, (ip_ >> 8) & 0xFF, (ip_) & 0xFF);
+    }
+
 protected:
     uint32_t ip_;
 };

@@ -2,6 +2,7 @@
 #include "pkt.h"
 #include <libnetfilter_queue/libnetfilter_queue.h>
 #include "ip.h"
+#include "iphdr.h"
 
 void dump(unsigned char* buf, int size) {
     int i;
@@ -10,6 +11,11 @@ void dump(unsigned char* buf, int size) {
             printf("\n");
         printf("%02X ", buf[i]);
     }
+
+    Iphdr* ip = (Iphdr*)buf;
+    printf("HEAR!!!!!!!");
+    ip->dst().print_ip();
+    ip->src().print_ip();
     printf("\n");
 }
 
