@@ -9,7 +9,7 @@ all: $(TARGET)
 
 
 
-$(TARGET): nfqnl_test.cpp pkt.cpp ip.cpp
+$(TARGET): nfqnl_test.cpp pkt.cpp ip.cpp iphdr.cpp
 	$(CC) $(CFLAGS) $^ -o $@ -lpcap -lnetfilter_queue
 
 clean:
