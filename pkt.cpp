@@ -3,6 +3,15 @@
 #include <libnetfilter_queue/libnetfilter_queue.h>
 #include "ip.h"
 #include "iphdr.h"
+#include "tcphdr.h"
+#include <string>
+
+unsigned char* get_data(unsigned char* buf, int size){
+    Iphdr* ip = (Iphdr*)buf;
+    unsigned char* data  = buf + ip->get_IP_length()*4;
+    return data;
+
+}
 
 void dump(unsigned char* buf, int size) {
     int i;
@@ -11,11 +20,6 @@ void dump(unsigned char* buf, int size) {
             printf("\n");
         printf("%02X ", buf[i]);
     }
-
-    Iphdr* ip = (Iphdr*)buf;
-    printf("HEAR!!!!!!!");
-    ip->dst().print_ip();
-    ip->src().print_ip();
     printf("\n");
 }
 
@@ -68,7 +72,7 @@ u_int32_t print_pkt (struct nfq_data *tb)
     ret = nfq_get_payload(tb, &data);
     if (ret >= 0){
         printf("payload_len=%d\n", ret);
-        dump(data, ret);
+        // dump(data, ret);
 
     }
 
@@ -82,8 +86,72 @@ u_int32_t print_pkt (struct nfq_data *tb)
 int cb(struct nfq_q_handle *qh, struct nfgenmsg *nfmsg,
               struct nfq_data *nfa, void *data)
 {
+    bool bad_host = false;
     u_int32_t id = print_pkt(nfa);
+    unsigned char* pkt;
+    int ret = nfq_get_payload(nfa, &pkt);
+    std::string host((char*)data);
+
+    Iphdr* ip = (Iphdr*) pkt;
+    uint8_t protocol = ip->protocol;
+    int ip_size = ip->get_IP_length();
+    printf("ip_size : %d\n", ip_size);
+    printf("\n\nprotocol : %d\n\n", protocol);
+
+
+    if (ret > 0 && protocol == 6){ //tcp
+        pkt = pkt + ip_size;
+
+
+        Tcphdr* tcphdr = (Tcphdr*)pkt;
+        int tcp_size = tcphdr->get_tcp_len();
+        printf("HHHHHHHHHHHHHHHHHH%d\n", tcp_size);
+        // dump(pkt, tcp_size);
+
+
+        unsigned char* http = pkt + tcp_size;
+        int http_size = ret - ip_size - tcp_size;
+
+        if(http_size > 0){
+            // dump(http, http_size);
+            std::string http_payload((char*)http, http_size);
+            printf("%s\n", http_payload.c_str());
+
+
+            size_t pos = http_payload.find("Host: ");
+            if(pos != std::string::npos){
+                size_t end = http_payload.find("\r\n", pos);
+                std::string host_ = http_payload.substr(pos, end - pos);
+                printf(">>> %s\n", host_.c_str());
+
+                std::string host_line = http_payload.substr(pos + 6, end - (pos + 6));
+                printf(">>>>>>>>>>>>>>>>%s\n", host_line.c_str());
+
+                if(host_line == host){
+                    printf("CATCH!!!!!!!!!\n");
+                    bad_host = true;
+
+                }
+
+
+            }
+        }
+
+    }
+    else{ //no tcp
+        return nfq_set_verdict(qh, id, NF_ACCEPT, 0, NULL);
+    }
+
+
+
+
+
     printf("entering callback\n");
+
+    if(bad_host){
+        printf("HEY!!!! BAD SITE NONO \n ");
+        return nfq_set_verdict(qh, id, NF_DROP, 0, NULL);
+    }
     return nfq_set_verdict(qh, id, NF_ACCEPT, 0, NULL);
     //new buffer -> bufsize, buf => packet modify
 }

@@ -8,11 +8,8 @@
 
 
 struct Iphdr{
-    uint8_t header_length : 4;
-    uint8_t version : 4;
-    uint8_t ecn : 2;
-    uint8_t dscp : 6;
-
+    uint8_t version_legnth;
+    uint8_t service_type;
 
     uint16_t tolal_length;
     uint16_t identification;
@@ -29,6 +26,11 @@ struct Iphdr{
 
     Ip src() { return Ip(ntohl(s_ip_)) ;};
     Ip dst() { return Ip(ntohl(d_ip_)); };
+
+    uint8_t get_IP_length(){
+        // printf("why?????? %x\n", version_legnth & 0x0F);
+        return (version_legnth & 0x0F) * 4 ;}
+    uint8_t get_protocol() { return protocol;}
 
 
 };

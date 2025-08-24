@@ -50,7 +50,7 @@ int main(int argc, char **argv)
 	}
 
 	printf("binding this socket to queue '0'\n");
-	qh = nfq_create_queue(h,  0, &cb, NULL);
+	qh = nfq_create_queue(h,  0, &cb, argv[1]);
 	if (!qh) {
 		fprintf(stderr, "error during nfq_create_queue()\n");
 		exit(1);
