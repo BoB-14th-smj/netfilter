@@ -2,6 +2,10 @@
 BoB 14기 보안제품개발 서민재 네트워크 과제 - NETFILTER (마지막)
 
 
+# 영상 
+[유튜브 영상 링크](https://youtu.be/ckl4s2-bxp0)
+
+
 
 # REF
 ### ip
